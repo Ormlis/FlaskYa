@@ -12,6 +12,7 @@
         {{ render_field(form.work_size) }}
         {{ render_field(form.collaborators) }}
         <p>{{ form.is_finished() }} {{ form.is_finished.label }}</p>
+        {{ message }}
         <p>{{ form.submit(type="submit", class="btn btn-secondary") }}</p>
     </form>
 </div>

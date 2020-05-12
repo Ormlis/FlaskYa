@@ -1,5 +1,5 @@
 from flask import render_template, redirect
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, login_required, current_user
 
 from app import app, login_manager
 from app.forms import *
@@ -75,6 +75,10 @@ def new_job():
     form = JobForm()
     if form.validate_on_submit():
         session = create_session()
+        user = session.query(User).filter(User.id == form.team_leader.data).first()
+        if not user:
+            return render_template('job_edit.html', title='Adding a job', title_form='Adding a job',
+                                   form=form, message='Wrong team leader id')
         job = Jobs(
             job=form.job.data,
             collaborators=form.collaborators.data,
@@ -82,7 +86,7 @@ def new_job():
             is_finished=form.is_finished.data,
             team_leader=form.team_leader.data
         )
-        session.add(job)
+        user.jobs.append(job)
         session.commit()
         return redirect('/')
     return render_template('job_edit.html', title='Adding a job', title_form='Adding a job',
