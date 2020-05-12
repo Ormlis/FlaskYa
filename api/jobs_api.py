@@ -51,7 +51,7 @@ def create_jobs():
                   'is_finished']):
         return jsonify({'error': 'Bad request'})
     session = create_session()
-    if session.query(User).get(request.json['id']):
+    if session.query(Jobs).get(request.json['id']):
         return jsonify({'error': 'Id already exists'})
     jobs = Jobs(
         id=request.json['id'],
@@ -75,5 +75,26 @@ def delete_jobs(jobs_id):
     if not jobs:
         return jsonify({'error': 'Not found'})
     session.delete(jobs)
+    session.commit()
+    return jsonify({'success': 'OK'})
+
+
+@blueprint.route('/api/jobs/<int:jobs_id>', methods=['PUT'])
+def edit_jobs(jobs_id):
+    if not request.json:
+        return jsonify({'error': 'Empty request'})
+    session = create_session()
+    job = session.query(Jobs).get(jobs_id)
+    if not job:
+        return jsonify({'error': 'Not found'})
+    job.team_leader = request.json.get('team_leader', job.team_leader)
+    job.job = request.json.get('job', job.job)
+    job.work_size = request.json.get('work_size', job.work_size)
+    job.collaborators = request.json.get('collaborators', job.collaborators)
+    job.start_date = datetime.fromisoformat(
+        request.json.get('start_date', job.start_date.isoformat()))
+    job.end_date = datetime.fromisoformat(request.json.get('end_date', job.end_date.isoformat()))
+    job.is_finished = request.json.get('is_finished', job.is_finished)
+    session.merge(job)
     session.commit()
     return jsonify({'success': 'OK'})
