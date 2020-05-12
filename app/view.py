@@ -1,4 +1,4 @@
-from flask import render_template, redirect
+from flask import render_template, redirect, request, abort
 from flask_login import login_user, logout_user, login_required, current_user
 
 from app import app, login_manager
@@ -91,3 +91,45 @@ def new_job():
         return redirect('/')
     return render_template('job_edit.html', title='Adding a job', title_form='Adding a job',
                            form=form)
+
+
+@app.route('/job/<int:job_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_job(job_id):
+    form = JobForm()
+    session = create_session()
+    job = session.query(Jobs).filter(Jobs.id == job_id).first()
+    if not job:
+        abort(404)
+    if job.team_leader != current_user.id and current_user.id != 1:
+        abort(403)
+    if request.method == 'GET':
+        form.job.data = job.job
+        form.team_leader.data = job.team_leader
+        form.work_size.data = job.work_size
+        form.is_finished.data = job.is_finished
+        form.collaborators.data = job.collaborators
+    if form.validate_on_submit():
+        job.job = form.job.data
+        job.team_leader = form.team_leader.data
+        job.is_finished = form.is_finished.data
+        job.collaborators = form.collaborators.data
+        job.work_size = form.work_size.data
+        session.commit()
+        return redirect('/')
+    return render_template('job_edit.html', title='Job editing', form=form,
+                           title_form='Job editing')
+
+
+@app.route('/job/<int:job_id>/delete', methods=['GET', 'POST'])
+@login_required
+def delete_job(job_id):
+    session = create_session()
+    job = session.query(Jobs).filter(Jobs.id == job_id).first()
+    if not job:
+        abort(404)
+    if job.team_leader != current_user.id and current_user.id != 1:
+        abort(403)
+    session.delete(job)
+    session.commit()
+    return redirect('/')
