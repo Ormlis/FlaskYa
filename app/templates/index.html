@@ -4,6 +4,8 @@
 {% block content %}
     <div>
         <h2 class="text-center">Works Log</h2>
+        <a class="text-center btn btn-dark"
+           href="/job/new">Add job</a>
         {% for job in actions %}
             <div>
                 <h3>Action #{{ loop.index }}</h3>

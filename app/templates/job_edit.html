@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text-center">
+    {% from "macros.html" import render_field %}
+    <form action="" method="post">
+        <h1 class="text-center"> {{ title_form }}</h1>
+        {{ form.hidden_tag() }}
+        {{ form.csrf_token }}
+        {{ render_field(form.job) }}
+        {{ render_field(form.team_leader) }}
+        {{ render_field(form.work_size) }}
+        {{ render_field(form.collaborators) }}
+        <p>{{ form.is_finished() }} {{ form.is_finished.label }}</p>
+        <p>{{ form.submit(type="submit", class="btn btn-secondary") }}</p>
+    </form>
+</div>
+{% endblock %}

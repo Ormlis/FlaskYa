@@ -1,8 +1,13 @@
 from flask import Flask
+from flask_login import LoginManager
+
 from data import global_init
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'key_secret_a_lot'
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 global_init("db/mars.db")
 
