@@ -80,6 +80,11 @@ def new_job():
         if not user:
             return render_template('job_edit.html', title='Adding a job', title_form='Adding a job',
                                    form=form, message='Wrong team leader id')
+
+        category = session.query(Category).filter(Category.id == form.category.data).first()
+        if not category:
+            category = Category(id=form.category.data)
+            session.add(category)
         job = Jobs(
             job=form.job.data,
             collaborators=form.collaborators.data,
@@ -87,6 +92,7 @@ def new_job():
             is_finished=form.is_finished.data,
             team_leader=form.team_leader.data
         )
+        job.categories.append(category)
         user.jobs.append(job)
         session.commit()
         return redirect('/')
@@ -110,12 +116,20 @@ def edit_job(job_id):
         form.work_size.data = job.work_size
         form.is_finished.data = job.is_finished
         form.collaborators.data = job.collaborators
+        form.category.data = job.categories[0].id
     if form.validate_on_submit():
+        job.categories.remove(job.categories[0])
+        category = session.query(Category).filter(Category.id == form.category.data).first()
+        if not category:
+            category = Category(id=form.category.data)
+            session.add(category)
         job.job = form.job.data
         job.team_leader = form.team_leader.data
         job.is_finished = form.is_finished.data
         job.collaborators = form.collaborators.data
         job.work_size = form.work_size.data
+        job.categories.append(category)
+        session.merge(job)
         session.commit()
         return redirect('/')
     return render_template('job_edit.html', title='Job editing', form=form,
