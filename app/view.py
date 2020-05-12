@@ -71,6 +71,7 @@ def logout():
 
 
 @app.route('/job/new', methods=['GET', 'POST'])
+@login_required
 def new_job():
     form = JobForm()
     if form.validate_on_submit():
