@@ -148,3 +148,70 @@ def delete_job(job_id):
     session.delete(job)
     session.commit()
     return redirect('/')
+
+
+@app.route('/departments')
+def departments_page():
+    session = create_session()
+    departments = session.query(Departments).all()
+    return render_template('departments.html', departments=departments, title='List of departments')
+
+
+@app.route('/department/new', methods=['GET', 'POST'])
+@login_required
+def new_department():
+    form = DepartmentForm()
+    if form.validate_on_submit():
+        session = create_session()
+        department = Departments(
+            title=form.title.data,
+            members=form.members.data,
+            chief=current_user.id,
+            email=form.email.data,
+        )
+        current_user.departments.append(department)
+        session.merge(current_user)
+        session.commit()
+        return redirect('/departments')
+    return render_template('department_edit.html', title='Adding a department',
+                           title_form='Adding a department',
+                           form=form)
+
+
+@app.route('/department/<int:department_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_department(department_id):
+    form = DepartmentForm()
+    session = create_session()
+    department = session.query(Departments).filter(Departments.id == department_id).first()
+    if not department:
+        abort(404)
+    if department.chief != current_user.id and current_user.id != 1:
+        abort(403)
+    if request.method == 'GET':
+        form.title.data = department.title
+        form.members.data = department.members
+        form.email.data = department.email
+    if form.validate_on_submit():
+        department.title = form.title.data
+        department.members = form.members.data
+        department.email = form.email.data
+        session.merge(department)
+        session.commit()
+        return redirect('/departments')
+    return render_template('department_edit.html', title='Department editing', form=form,
+                           title_form='Department editing')
+
+
+@app.route('/department/<int:department_id>/delete', methods=['GET', 'POST'])
+@login_required
+def delete_department(department_id):
+    session = create_session()
+    department = session.query(Departments).filter(Departments.id == department_id).first()
+    if not department:
+        abort(404)
+    if department.chief != current_user.id and current_user.id != 1:
+        abort(403)
+    session.delete(department)
+    session.commit()
+    return redirect('/departments')

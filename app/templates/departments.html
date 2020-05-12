@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    <div>
+        <h2 class="text-center">List of Departments</h2>
+        <a class="text-center btn btn-dark"
+           href="/">Back to jobs</a>
+        {% if current_user.is_authenticated %}
+            <a class="text-center btn btn-dark"
+               href="/department/new">Add department</a>
+        {% endif %}
+        {% for department in departments %}
+            <div style="padding: 10px; background-color: aliceblue; border: 2px solid gray">
+                <h3>Department #{{ loop.index }}</h3>
+                <table style="width: 100%">
+                    <tr style="background-color: lightgray">
+                        <td>Title of department</td>
+                        <td>Chief</td>
+                        <td>Members</td>
+                        <td>Department Email</td>
+                    </tr>
+                    <tr style="background-color: rgba(39,129,157,0.5)">
+                        <td>{{ department.title }}</td>
+                        <td>{{ department.user.surname }} {{ department.user.name }}</td>
+                        <td>{{ department.members }}</td>
+                        <td>{{ department.email }}</td>
+                    </tr>
+                </table>
+                {% if current_user.is_authenticated and (current_user.id == 1 or department.chief == current_user.id) %}
+                    <a class="text-center btn btn-secondary"
+                       href="/department/{{ department.id }}/edit">Edit department</a>
+                    <a class="text-center btn btn-warning"
+                       href="/department/{{ department.id }}/delete">Delete department</a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
