@@ -20,6 +20,7 @@ class RegistrationForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     age = IntegerField('Age', validators=[DataRequired()])
     position = StringField('Position', validators=[DataRequired()])
+    city_from = StringField('City', validators=[DataRequired()])
     speciality = StringField('Speciality', validators=[DataRequired()])
     address = StringField('Address', validators=[DataRequired()])
     submit = SubmitField('Submit')

@@ -1,8 +1,10 @@
+import requests
 from flask import render_template, redirect, request, abort, make_response, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 
 from app import app, login_manager
 from app.forms import *
+from app.maps_api import get_image
 from data import *
 
 
@@ -34,7 +36,8 @@ def registration():
             position=form.position.data,
             speciality=form.speciality.data,
             address=form.address.data,
-            age=form.age.data
+            age=form.age.data,
+            city_from=form.city_from.data
         )
         user.set_password(form.password.data)
         session.add(user)
@@ -220,3 +223,15 @@ def delete_department(department_id):
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
+
+
+@app.route('/users_show/<int:user_id>')
+def users_show(user_id):
+    user = requests.get(f'http://localhost:5000/api/user/{user_id}').json()
+    if 'user' not in user:
+        return redirect('/')
+    user = user['user']
+    city_from = user['city_from']
+    print(user)
+    image = get_image(city_from)
+    return render_template('users_show.html', image=image, user=user, title='Hometown')

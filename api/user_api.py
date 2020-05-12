@@ -16,7 +16,7 @@ def get_users():
             'users':
                 [item.to_dict(only=('id', 'surname',
                                     'name', 'age', 'position', 'speciality',
-                                    'address', 'email'))
+                                    'address', 'email', 'city_from'))
                  for item in users]
         }
     )
@@ -32,7 +32,7 @@ def get_one_user(user_id):
         {
             'user': user.to_dict(only=('id', 'surname',
                                        'name', 'age', 'position', 'speciality',
-                                       'address', 'email'))
+                                       'address', 'email', 'city_from'))
         }
     )
 
@@ -44,7 +44,7 @@ def create_user():
     elif not all(key in request.json for key in
                  ['id', 'surname',
                   'name', 'age', 'position', 'speciality',
-                  'address', 'email']):
+                  'address', 'email', 'city_from']):
         return jsonify({'error': 'Bad request'})
     session = create_session()
     if session.query(User).get(request.json['id']):
@@ -57,7 +57,8 @@ def create_user():
         position=request.json['position'],
         speciality=request.json['speciality'],
         address=request.json['address'],
-        email=request.json['email']
+        email=request.json['email'],
+        city_from=request.json['city_from']
     )
     session.add(user)
     session.commit()
@@ -90,6 +91,7 @@ def edit_user(user_id):
     user.speciality = request.json.get('speciality', user.speciality)
     user.address = request.json.get('address', user.address)
     user.email = request.json.get('email', user.email)
+    user.city_from = request.json.get('city_from', user.city_from)
     session.merge(user)
     session.commit()
     return jsonify({'success': 'OK'})
