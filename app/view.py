@@ -1,4 +1,4 @@
-from flask import render_template, redirect, request, abort
+from flask import render_template, redirect, request, abort, make_response, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 
 from app import app, login_manager
@@ -215,3 +215,8 @@ def delete_department(department_id):
     session.delete(department)
     session.commit()
     return redirect('/departments')
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
