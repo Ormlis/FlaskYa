@@ -2,7 +2,7 @@ from flask import Flask
 from flask_login import LoginManager
 from flask_restful import Api
 
-from api.resources import users_resource
+from api.resources import users_resource, jobs_resource
 from data import global_init
 
 app = Flask(__name__)
@@ -12,6 +12,8 @@ api = Api(app)
 
 api.add_resource(users_resource.UserListResource, '/api/v2/users')
 api.add_resource(users_resource.UserResource, '/api/v2/users/<int:user_id>')
+api.add_resource(jobs_resource.JobResource, '/api/v2/jobs/<int:job_id>')
+api.add_resource(jobs_resource.JobListResource, '/api/v2/jobs')
 
 login_manager = LoginManager()
 login_manager.init_app(app)
